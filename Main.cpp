@@ -2,13 +2,16 @@
 #include "GameInfo.h"
 #include "Player.h"
 #include "Paddle.h"
-#include "FrameRate.h"//
+#include "FrameRate.h"
 #include <vector>
 #include <time.h>
-//480×640
+#include "HitJudgeManager.h"
 
 //パドルは画面横から平行移動してくる
 //プレイヤーが乗ったらx方向の移動が止まって、下に落ちる
+
+//当たり判定について
+//プレイヤーの前フレームの位置を調べる→その位置が現在地よりも上の時だけ衝突検出(ちゃんと上から踏んだ時だけ衝突検出をする)
 
 // プログラムは WinMain から始まります
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -34,10 +37,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Paddle firstPaddle(100.0f, 100.0f, 100, 10, paddles.size());
 	paddles.push_back(firstPaddle);
 
+	HitJudgeManager::create();
+
 	while (ProcessMessage() == 0) {
 		ClearDrawScreen();//画面クリア
 
-		player.Update();
+		if(!player.Update()) break;
 
 		int prevPaddlesSize = paddles.size();
 		for (int i = prevPaddlesSize; i > 0; --i) {
@@ -54,7 +59,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		
 
 		//当たり判定
-
+		for (int i = 0; i < paddles.size(); ++i) {
+			if (HitJudgeManager::getInstance()->HitJudge(player.Test_Get_mboxCollider(), paddles[i].Test_Get_mboxCollider())) {
+				paddles[i].SteppedOn();
+			}
+		}
 
 		//パドル生成
 		//出てくる方向（左右）はランダム
@@ -89,6 +98,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		ScreenFlip();//表示
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1) break;
 	}
+
+	HitJudgeManager::destroy();
 
 	DxLib_End();				// ＤＸライブラリ使用の終了処理
 

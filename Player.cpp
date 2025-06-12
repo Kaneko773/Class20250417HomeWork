@@ -7,15 +7,11 @@
 float add = 200.0f;
 
 //ジャンプ
-bool canJump = true;//ジャンプ出来るかどうか
-float jumpSpeed = 1.0f;                                                        //調整
-float gravity = 300.0f / jumpSpeed;//重力( 1秒間に移動するドット数 )
-float jumpingTime = 0;     // ジャンプの時間
-const float MaxJumpTime = 1.0f;//ジャンプ出来る最大の時間　　　　            　//調整
-float jumpTime = MaxJumpTime;//実際にジャンプ出来る時間
-float jumpInputTime = 0;//ジャンプ入力がされた時間
-const float smallJumpInput = 0.5f;//この値以下の時間の入力だと小ジャンプになる //調整
+//テスト
+float vel = 0; // y方向の速度
+float acc = 1; // 重力加速度
 bool prevJumpInput = false;//前フレームのジャンプキーの入力
+float jumpInputTime = 0;//ジャンプ入力がされた時間
 
 float reductionMag = 4;//縮小倍率
 
@@ -31,12 +27,14 @@ Player::Player(float x, float y) {
 	center.Get_y() = y;
 
 	m_boxCollider.Initialization(center, size);
+
+	canJump = false;
 }
 Player::~Player() {
 	DeleteGraph(_gHandle);
 }
 
-void Player::Update() {
+bool Player::Update() {
 	BoxCollider tempCollider = m_boxCollider;
 
 	//左右移動
@@ -46,35 +44,28 @@ void Player::Update() {
 	if (CheckHitKey(KEY_INPUT_D) == 1) {//右
 		tempCollider._center.Get_x() += add * FrameRate::Get_Deltatime();
 	}
+
+	//テスト
 	//重力
-	tempCollider._center.Get_y() += gravity * FrameRate::Get_Deltatime() * (canJump ? 1.0f : jumpSpeed);
+	vel += acc * FrameRate::Get_Deltatime() * 2;
+	tempCollider._center.Get_y() += vel;
 	//ジャンプ
 	if (CheckHitKey(KEY_INPUT_SPACE) == 1 && canJump) {
 		canJump = false;
-		jumpingTime = 0;
-		prevJumpInput = true;
+		vel = -0.6f;
 		jumpInputTime = GetNowHiPerformanceCount() / 1000000.0f;
 	}
 	if (!canJump) {
 		//ジャンプボタンが離されたら
-		if (!prevJumpInput) {
-			if ((GetNowHiPerformanceCount() / 1000000.0f) - jumpInputTime < smallJumpInput) jumpTime = MaxJumpTime / 2;
+		if (!CheckHitKey(KEY_INPUT_SPACE)) {
+			if ((GetNowHiPerformanceCount() / 1000000.0f) - jumpInputTime < 0.1f) vel = (-0.15f);
 		}
+	}
 
-		if (jumpingTime < jumpTime) {
-			tempCollider._center.Get_y() -= gravity * FrameRate::Get_Deltatime() * 2.0f * jumpSpeed;
-		}
-
-		prevJumpInput = CheckHitKey(KEY_INPUT_SPACE);
-
-		//地面に着いたら再ジャンプ可能
-		if (tempCollider.Get_bottomSide() >= ScreenHeight) {
-			canJump = true;
-			prevJumpInput = false;
-			jumpTime = MaxJumpTime;
-		}
-
-		jumpingTime += FrameRate::Get_Deltatime();
+	//地面に着いたらゲームオーバー
+	if (tempCollider.Get_bottomSide() >= ScreenHeight) {
+		//return false;
+		canJump = true;
 	}
 
 	//移動制限
@@ -84,8 +75,14 @@ void Player::Update() {
 	if (tempCollider.Get_bottomSide() > ScreenHeight) tempCollider._center.Get_y() = ScreenHeight - (tempCollider._size.Get_height() / 2.0f);
 
 	m_boxCollider._center = tempCollider._center;
+
+	return true;
 }
 
 void Player::Draw() {
 	DrawExtendGraph(m_boxCollider.Get_leftSide(), m_boxCollider.Get_topSide(), m_boxCollider.Get_rightSide(), m_boxCollider.Get_bottomSide(), _gHandle, TRUE);
+}
+
+float Player::Get_amountOfMovement() {
+	return 0;
 }
