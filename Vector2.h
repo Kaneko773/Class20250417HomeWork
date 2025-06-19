@@ -19,6 +19,14 @@ template <typename T>
 class Vector2
 {
 public:
+	Vector2() {
+		Vec2.x = Vec2.y = 0;
+	}
+	Vector2(T t1, T t2) {
+		Vec2.x = t1;
+		Vec2.y = t2;
+	}
+
 	float& Get_x() {
 		return Vec2.x;
 	}

@@ -18,15 +18,11 @@ float reductionMag = 4;//縮小倍率
 Player::Player(float x, float y) {
 	_gHandle = LoadGraph("画像/figure_jump.png");//358*400
 
-	Vector2<float> size;
-	size.Get_height() = PlayerPictureHeight / reductionMag;
-	size.Get_width() = PlayerPictureWidth / reductionMag;
+	Vector2<float> size(PlayerPictureWidth / reductionMag, PlayerPictureHeight / reductionMag);
+	Vector2<float> center(x, y);
 
-	Vector2<float> center;
-	center.Get_x() = x;
-	center.Get_y() = y;
-
-	m_boxCollider.Initialization(center, size);
+	_center = center;
+	_size = size;
 
 	canJump = false;
 }
@@ -35,20 +31,21 @@ Player::~Player() {
 }
 
 bool Player::Update() {
-	BoxCollider tempCollider = m_boxCollider;
+	BoxCollider temp_collider;
+	temp_collider._center = _center;
+	temp_collider._size = _size;
 
 	//左右移動
 	if (CheckHitKey(KEY_INPUT_A) == 1) {//左
-		tempCollider._center.Get_x() -= add * FrameRate::Get_Deltatime();
+		temp_collider._center.Get_x() -= add * FrameRate::Get_Deltatime();
 	}
 	if (CheckHitKey(KEY_INPUT_D) == 1) {//右
-		tempCollider._center.Get_x() += add * FrameRate::Get_Deltatime();
+		temp_collider._center.Get_x() += add * FrameRate::Get_Deltatime();
 	}
 
 	//テスト
 	//重力
 	vel += acc * FrameRate::Get_Deltatime() * 2;
-	tempCollider._center.Get_y() += vel;
 	//ジャンプ
 	if (CheckHitKey(KEY_INPUT_SPACE) == 1 && canJump) {
 		canJump = false;
@@ -61,26 +58,27 @@ bool Player::Update() {
 			if ((GetNowHiPerformanceCount() / 1000000.0f) - jumpInputTime < 0.1f) vel = (-0.15f);
 		}
 	}
+	temp_collider._center.Get_y() += vel;
 
 	//地面に着いたらゲームオーバー
-	if (tempCollider.Get_bottomSide() >= ScreenHeight) {
+	if (Get_bottomSide() >= (float)ScreenHeight) {
 		//return false;
 		canJump = true;
 	}
 
 	//移動制限
-	if (tempCollider.Get_leftSide() < 0) tempCollider._center.Get_x() = tempCollider._size.Get_width() / 2.0f;
-	if (tempCollider.Get_rightSide() > ScreenWidth) tempCollider._center.Get_x() = ScreenWidth - (tempCollider._size.Get_width() / 2.0f);
-	if (tempCollider.Get_topSide() < 0) tempCollider._center.Get_y() = tempCollider._size.Get_height() / 2.0f;
-	if (tempCollider.Get_bottomSide() > ScreenHeight) tempCollider._center.Get_y() = ScreenHeight - (tempCollider._size.Get_height() / 2.0f);
+	if (temp_collider.Get_leftSide() < 0.0f) temp_collider._center.Get_x() = _size.Get_width() / 2.0f;
+	if (temp_collider.Get_rightSide() > (float)ScreenWidth) temp_collider._center.Get_x() = (float)ScreenWidth - (_size.Get_width() / 2.0f);
+	if (temp_collider.Get_topSide() < 0.0f) temp_collider._center.Get_y() = _size.Get_height() / 2.0f;
+	if (temp_collider.Get_bottomSide() > (float)ScreenHeight) temp_collider._center.Get_y() = (float)ScreenHeight - (_size.Get_height() / 2.0f);
 
-	m_boxCollider._center = tempCollider._center;
+	_center = temp_collider._center;
 
 	return true;
 }
 
 void Player::Draw() {
-	DrawExtendGraph(m_boxCollider.Get_leftSide(), m_boxCollider.Get_topSide(), m_boxCollider.Get_rightSide(), m_boxCollider.Get_bottomSide(), _gHandle, TRUE);
+	DrawExtendGraph((int)Get_leftSide(), (int)Get_topSide(), (int)Get_rightSide(), (int)Get_bottomSide(), _gHandle, TRUE);
 }
 
 float Player::Get_amountOfMovement() {
