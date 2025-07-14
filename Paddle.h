@@ -4,14 +4,18 @@
 class Paddle : public BoxCollider
 {
 public:
-	Paddle(float x, float y, int width, int height);
+	Paddle(Vector2<float> pos, Vector2<float> size);
 	virtual ~Paddle();
 
 	void SteppedOn() {
 		m_materialization = true;
 	}
+	bool Get_m_materialization() {
+		return m_materialization;
+	}
 
-	bool Update();
+	void Update();
+	bool RangeJudge();
 	void Draw();
 
 private:

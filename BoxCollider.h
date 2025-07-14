@@ -24,5 +24,8 @@ public:
 
 	Vector2<float> _center;
 	Vector2<float> _size;
+
+	Vector2<float> _movementPerFrame;//‚PƒtƒŒ[ƒ€‚Å‚ÌˆÚ“®—Ê
+	bool _isCollisionResponse;//Õ“Ë‰“š‚µ‚½‚©‚Ç‚¤‚©
 };
 

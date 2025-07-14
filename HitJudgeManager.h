@@ -1,14 +1,17 @@
 #pragma once
 
+#include <vector>
+
 class BoxCollider;
-//class Player;
-//class Paddle;
+class Player;
+class Paddle;
 
 class HitJudgeManager
 {
 public:
-	bool HitJudge(BoxCollider* playerCollider, BoxCollider* paddleCollider);
-	//bool HitJudge(Player* player, Paddle* paddle);
+	void ColliderUpdate(Player* player, Paddle* paddle);
+	bool HitJudge_materialization(BoxCollider* player, BoxCollider* paddle);
+	bool HitJudge_notMaterialization(BoxCollider* player, BoxCollider* paddle);
 
 	HitJudgeManager(const HitJudgeManager&) = delete;
 	void operator=(const HitJudgeManager&) = delete;
@@ -16,6 +19,7 @@ public:
 private:
 	HitJudgeManager() {};
 	virtual ~HitJudgeManager() {};
+
 private:
 	static HitJudgeManager* pInstance;
 
@@ -24,4 +28,3 @@ public:
 	static void create();
 	static void destroy();
 };
-
