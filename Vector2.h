@@ -27,6 +27,9 @@ public:
 		Vec2.y = t2;
 	}
 
+	bool operator==(const Vector2& add) {
+		return Vec2.x == add.Vec2.x && Vec2.y == add.Vec2.y;
+	}
 	Vector2& operator+=(const Vector2& add) {
 		Vec2.x += add.Vec2.x;
 		Vec2.y += add.Vec2.y;

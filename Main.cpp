@@ -12,18 +12,13 @@ using namespace std;
 
 //※
 //実体化したパドルの降下スピードより、プレイヤーの降下速度が小さくならない様にする
-// 
-//プレイヤーの衝突応答が終わったらそれ以上の衝突判定はしなくて良いかも
 
-//移動ベクトルを使って移動させる関数を作る（引数は移動の割合）
+//デバッグモードを作る
+//デバッグモード終了時に変更を適用する関数を作る
 
-void PaddleListSort(list<Paddle>& list) {
-	//パドルの数が１なら返す
+//画面遷移を作る
 
-	//パドルの移動後の高さでソート（移動前の高さでソートとどっちが良いかは分からない）//////////////////////////////
-	//前から低いやつを後ろに回してく
-}
-
+//メニューを作るに当たって、現在時刻を取得する処理を工夫して
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -42,11 +37,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	float nextPaddleCreateTime = (float)(rand() % 3 + 4);
 
 	//生成
-	Player player(Vector2<float>(0.0f, (float)(ScreenHeight - PlayerPictureHeight / 2)));
+	Player player(Vector2<float>(ScreenWidth / 2, ScreenHeight / 2));
 	
 	list<Paddle> paddles;
-	PaddleListSort(paddles);
-	Paddle firstPaddle(Vector2<float>(100, 100), Vector2<float>(100, 10));
+	Paddle firstPaddle(Vector2<float>(ScreenWidth / 2, ScreenHeight / 2), Vector2<float>(100, 10));
 	firstPaddle.SteppedOn();
 	paddles.push_back(firstPaddle);
 
@@ -61,12 +55,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			(*i).Update();
 		}
 
-		
 		float angle = atan2(player._movementPerFrame.Get_y(), player._movementPerFrame.Get_x()) * 180.0f / 3.14159265f;
-		if (0 <= angle && angle <= 180)//プレイヤーの移動ベクトルが真横か下向きの時のみ判定///////////////////////////////////////////////////////////////////////////////
+		if (0 <= angle && angle <= 180)
 		{
 			//パドルリストのソート
-			PaddleListSort(paddles);
+			for (auto i = paddles.begin(); i != paddles.end(); ++i) {
+				(*i).Set_sort_y();//ソート用に値を設定
+			}
+			paddles.sort();
 
 			//衝突判定と応答
 			for (auto i = paddles.begin(); i != paddles.end(); ++i) {
@@ -90,22 +86,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 		}
 
-
 		//パドル生成
 		//出てくる方向（左右）はランダム
 		//要素の一番後ろに追加
 		//プレイヤーがパドルに立っている時限定にした方が良いかも(canJumpがtrueの時)
-		if (timer > nextPaddleCreateTime) {
-#if 0
+		if (player.Get_canJump() && timer > nextPaddleCreateTime) {
 			int createPosY = (int)player.Get_topSide() - (rand() % 51 + 150);//生成する高さ プレイヤーの頭上150～200
 			//生成
 			int createPosX = (rand() % 2 == 0) ? -1 * (PaddleSizeWidth / 2) : ScreenWidth + (PaddleSizeWidth / 2);
-			//Paddle paddle((float)createPosX, (float)createPosY, PaddleSizeWidth, PaddleSizeHeight);
 			Paddle paddle(Vector2<float>((float)createPosX, (float)createPosY), Vector2<float>(PaddleSizeWidth, PaddleSizeHeight));
 			paddles.push_back(paddle);
 			//更新
 			nextPaddleCreateTime += rand() % 3 + 4;/* - (rand() % 3 == 0 ? 3 : 0)*///３分の１で短スパンで出てくる
-#endif
 		}
 
 
@@ -114,27 +106,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		for (auto i = paddles.begin(); i != paddles.end(); ++i) {
 			(*i).Draw();
 		}
-
 		unsigned int Cr = GetColor(255, 255, 255);
-		for (int i = 1; i <= 10; ++i) {
-			DrawTriangle((ScreenWidth / 10 * i)- ScreenWidth / 20, ScreenHeight - (ScreenWidth / 10), ScreenWidth / 10 * (i-1), ScreenHeight - 1, ScreenWidth / 10 * i, ScreenHeight - 1, Cr, TRUE);
-		}//下のトゲトゲ
-
-		DrawFormatString(0, 0, GetColor(255, 255, 255), "タイム : %d 秒", (int)timer);
+		//下のトゲトゲ
+		for (int i = 1; i <= 24; ++i) {
+			DrawTriangle((ScreenWidth / 24 * i) - ScreenWidth / 48, ScreenHeight - DeadZoneHeight, ScreenWidth / 24 * (i-1), ScreenHeight - 1, ScreenWidth / 24 * i, ScreenHeight - 1, Cr, TRUE);
+		}
+		DrawFormatString(0, 0, GetColor(255, 255, 255), "ふんばった時間 : %d 秒", (int)timer);
+#if 0
 		//デバッグ//////////////////////
 		DrawFormatString(0, 20, GetColor(255, 255, 255), "パドル数 : %d 個", paddles.size());
 		DrawFormatString(0, 40, GetColor(255, 255, 255), "x : %f, y : %f", player._center.Get_x(), player._center.Get_y());
 		player.Get_canJump() ? DrawFormatString(0, 60, GetColor(255, 255, 255), "true") : DrawFormatString(0, 60, GetColor(255, 255, 255), "false");
 		DrawFormatString(0, 80, GetColor(255, 255, 255), "deltaTime : %f 秒", FrameRate::Get_Deltatime());
-		DrawFormatString(0, 140, GetColor(255, 255, 255), "角度 : %f", atan2(player._movementPerFrame.Get_y(), player._movementPerFrame.Get_x()) * 180.0f / 3.14159265f);
 		////////////////////////////////
+#endif
 
 		timer += FrameRate::Get_Deltatime();//時間更新
-
 		FrameRate::FrameRateUpdate();//フレームレート更新
 
 		ScreenFlip();//表示
+
+		//ゲーム終了
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1) break;
+		if (player.Get_bottomSide() > ScreenHeight - DeadZoneHeight) break;
 	}
 
 	for (auto i = paddles.begin(); i != paddles.end();) {
