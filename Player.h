@@ -20,7 +20,7 @@ public:
 		canJump = true;
 	}
 
-	float vel; // y•ûŒü‚Ì‘¬“x
+	float vel_y; // y•ûŒü‚Ì‘¬“x
 
 private:
 	int _gHandle;

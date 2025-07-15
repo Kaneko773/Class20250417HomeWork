@@ -22,9 +22,14 @@
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="FrameRate.cpp" />
     <ClCompile Include="HitJudgeManager.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Result.cpp" />
+    <ClCompile Include="SequenceBase.cpp" />
+    <ClCompile Include="Title.cpp" />
     <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -32,8 +37,13 @@
     <ClInclude Include="FrameRate.h" />
     <ClInclude Include="GameInfo.h" />
     <ClInclude Include="HitJudgeManager.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="MainGame.h" />
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Result.h" />
+    <ClInclude Include="SequenceBase.h" />
+    <ClInclude Include="Title.h" />
     <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

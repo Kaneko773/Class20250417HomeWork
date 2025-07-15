@@ -35,23 +35,23 @@ void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle)
 {
 	if (player->_isCollisionResponse) return;//プレイヤーが衝突応答していたら、このフレームではもう判定しない
 
+	//実体化してる
 	if (paddle->Get_m_materialization())
 	{
-		//実体化してる
+		paddle->_center += paddle->_movementPerFrame;//パドルは先に動かす
 		if (HitJudge_materialization(player, paddle))
 		{
-			paddle->_center += paddle->_movementPerFrame;
 			player->_center = { player->_center.Get_x(), paddle->Get_topSide() - player->_size.Get_height() / 2.0f };//パドルの上に立つ
 
 			player->CanJump();
-			player->vel = 0;
+			player->vel_y = 0;
 			player->_isCollisionResponse = true;
 			paddle->_isCollisionResponse = true;
 		}
 	}
+	//実体化してない
 	else
 	{
-		//実体化してない
 		float temp = HitJudge_notMaterialization(player, paddle);//パドルの移動ベクトル上で、プレイヤーと当たった場所の割合が返ってくる(-1だと当たってない)
 		if (temp != -1)
 		{
@@ -61,7 +61,7 @@ void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle)
 			paddle->SteppedOn();//パドルを実体化
 
 			player->CanJump();
-			player->vel = 0;
+			player->vel_y = 0;
 			player->_isCollisionResponse = true;
 			paddle->_isCollisionResponse = true;
 		}

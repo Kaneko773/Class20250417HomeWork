@@ -2,10 +2,9 @@
 #include "DxLib.h"
 #include "GameInfo.h"
 #include "FrameRate.h"
+#include "InputManager.h"
 
 //ジャンプ
-float acc = 2; // 重力加速度
-int prevJumpInput = false;//前フレームのジャンプキーの入力
 float jumpInputTime = 0;//ジャンプ入力がされた時間
 
 float reductionMag = 4;//縮小倍率
@@ -20,7 +19,7 @@ Player::Player(Vector2<float> pos) {
 
 	canJump = false;
 
-	vel = 0;
+	vel_y = 0;
 }
 Player::~Player() {
 	DeleteGraph(_gHandle);
@@ -42,21 +41,20 @@ void Player::Update() {
 #endif
 
 	//重力
-	vel += acc * FrameRate::Get_Deltatime();
+	vel_y += GravityAcceleration * FrameRate::Get_Deltatime();
 	//ジャンプ
-	int jumpInput = CheckHitKey(KEY_INPUT_SPACE);
-	if (prevJumpInput == 0 && jumpInput == 1 && canJump) {      
+	if (InputManager::getInstance()->GetKeyDown_SPACE() && canJump) {
 		canJump = false;
-		vel = -0.6f;
+		vel_y = -0.6f;
 		jumpInputTime = GetNowHiPerformanceCount() / 1000000.0f;
 	}
 	if (!canJump) {
 		//ジャンプボタンが離されたら
-		if (!CheckHitKey(KEY_INPUT_SPACE)) {
-			if ((GetNowHiPerformanceCount() / 1000000.0f) - jumpInputTime < 0.1f) vel = (-0.15f);
+		if (InputManager::getInstance()->GetKeyUp_SPACE()) {
+			if ((GetNowHiPerformanceCount() / 1000000.0f) - jumpInputTime < 0.1f) vel_y = (-0.15f);
 		}
 	}
-	_movementPerFrame.Set_y(_movementPerFrame.Get_y() + vel);
+	_movementPerFrame.Set_y(_movementPerFrame.Get_y() + vel_y);
 
 #if 0
 	//移動制限
@@ -64,8 +62,6 @@ void Player::Update() {
 	if (Get_rightSide() + _movementPerFrame.Get_x() > (float)ScreenWidth) _movementPerFrame.Set_x((float)ScreenWidth - Get_rightSide());
 	if (Get_bottomSide() + _movementPerFrame.Get_y() > (float)ScreenHeight) _movementPerFrame.Set_y((float)ScreenHeight - Get_bottomSide());
 #endif
-
-	prevJumpInput = jumpInput;
 }
 
 void Player::Draw() {

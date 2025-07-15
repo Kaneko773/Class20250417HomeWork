@@ -11,13 +11,16 @@ Paddle::Paddle(Vector2<float> pos, Vector2<float> size) {
 	m_materialization = false;
 
 	if (pos.Get_x() < 0) {
-		//1`25
-		flyingAngle = rand() % 25 + 1;
+		//1`10
+		flyingAngle = rand() % 10 + 1;
 	}
 	else {
-		//155`179
-		flyingAngle = rand() % 25 + 155;
+		//170`179
+		flyingAngle = rand() % 10 + 170;
 	}
+
+	paddleSpeed = PaddleSpeed;//—”‚Å‘‚­‚·‚é
+	vel = InitialVelocity;
 }
 Paddle::~Paddle() {
 
@@ -28,14 +31,14 @@ void Paddle::Update() {
 	_isCollisionResponse = false;
 
 	if (m_materialization) {
-		//‚P•bŠÔ‚É50ƒhƒbƒg—Ž‚¿‚é
-		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + 50.0f * FrameRate::Get_Deltatime());
+		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + vel * FrameRate::Get_Deltatime());
+		vel += PaddleAcceleration * FrameRate::Get_Deltatime();
 	}
 	else {
-		//Žw’è‚Ì•ûŒü‚É”ò‚ñ‚Å‚¢‚­(ƒeƒXƒgF1•bŠÔ‚É100ƒhƒbƒgi‚Þ)
+		//Žw’è‚Ì•ûŒü‚É”ò‚ñ‚Å‚¢‚­
 		double angle = 3.14159 / (static_cast<double>(180) / flyingAngle);
-		_movementPerFrame.Set_x(_movementPerFrame.Get_x() + 100.0f * FrameRate::Get_Deltatime() * (float)cos(angle));
-		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + 100.0f * FrameRate::Get_Deltatime() * (float)sin(angle));
+		_movementPerFrame.Set_x(_movementPerFrame.Get_x() + PaddleSpeed * FrameRate::Get_Deltatime() * (float)cos(angle));
+		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + PaddleSpeed * FrameRate::Get_Deltatime() * (float)sin(angle));
 	}
 }
 

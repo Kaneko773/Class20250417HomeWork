@@ -14,10 +14,6 @@ public:
 		return m_materialization;
 	}
 
-	const float Get_center_y() {//
-		return _center.Get_y();
-	}
-
 	void Update();
 	bool RangeJudge();
 	void Draw();
@@ -34,6 +30,9 @@ public:
 private:
 	bool m_materialization;//プレイヤーに踏まれて実体化したかどうか
 	int flyingAngle;//飛ぶ角度(踏まれるまで)
+
+	float paddleSpeed;//非実体化時の速度
+	float vel;//実体化時の速度
 
 	float sort_y;//ソート用
 };
