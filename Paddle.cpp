@@ -12,33 +12,46 @@ Paddle::Paddle(Vector2<float> pos, Vector2<float> size) {
 
 	if (pos.Get_x() < 0) {
 		//1`10
-		flyingAngle = rand() % 10 + 1;
+		m_flyingAngle = rand() % 10 + 1;
 	}
 	else {
 		//170`179
-		flyingAngle = rand() % 10 + 170;
+		m_flyingAngle = rand() % 10 + 170;
 	}
 
-	paddleSpeed = PaddleSpeed;//—”‚Å‘‚­‚·‚é
-	vel = InitialVelocity;
+	m_paddleSpeed = PaddleSpeed_LowestValue * (1.0f + (0.1f * (rand() % 10 + 1)));//—”‚Å‘‚­‚·‚é
+
+	m_sort_y = _center.Get_y();
+
+	switch (rand() % 3)
+	{
+	case 0:
+		m_color = GetColor(255, rand() % 256, rand() % 256);
+		break;
+	case 1:
+		m_color = GetColor(rand() % 256, 255, rand() % 256);
+		break;
+	case 2:
+		m_color = GetColor(rand() % 256, rand() % 256, 255);
+		break;
+	}
 }
 Paddle::~Paddle() {
 
 }
 
-void Paddle::Update() {
+void Paddle::Update(float fallSpeed) {
 	_movementPerFrame.Reset();
 	_isCollisionResponse = false;
 
 	if (m_materialization) {
-		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + vel * FrameRate::Get_Deltatime());
-		vel += PaddleAcceleration * FrameRate::Get_Deltatime();
+		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + fallSpeed * FrameRate::Get_Deltatime());
 	}
 	else {
 		//Žw’è‚Ì•ûŒü‚É”ò‚ñ‚Å‚¢‚­
-		double angle = 3.14159 / (static_cast<double>(180) / flyingAngle);
-		_movementPerFrame.Set_x(_movementPerFrame.Get_x() + PaddleSpeed * FrameRate::Get_Deltatime() * (float)cos(angle));
-		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + PaddleSpeed * FrameRate::Get_Deltatime() * (float)sin(angle));
+		double angle = 3.14159 / (static_cast<double>(180) / m_flyingAngle);
+		_movementPerFrame.Set_x(_movementPerFrame.Get_x() + m_paddleSpeed * FrameRate::Get_Deltatime() * (float)cos(angle));
+		_movementPerFrame.Set_y(_movementPerFrame.Get_y() + m_paddleSpeed * FrameRate::Get_Deltatime() * (float)sin(angle));
 	}
 }
 
@@ -55,5 +68,5 @@ bool Paddle::RangeJudge() {
 }
 
 void Paddle::Draw() {
-	DrawBox((int)Get_leftSide(), (int)Get_topSide(), (int)Get_rightSide(), (int)Get_bottomSide(), GetColor(255, 255, 255), m_materialization ? TRUE : FALSE);
+	DrawBox((int)Get_leftSide(), (int)Get_topSide(), (int)Get_rightSide(), (int)Get_bottomSide(), m_color, m_materialization ? TRUE : FALSE);
 }

@@ -42,6 +42,7 @@
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Result.h" />
+    <ClInclude Include="ScoreManager.h" />
     <ClInclude Include="SequenceBase.h" />
     <ClInclude Include="Title.h" />
     <ClInclude Include="Vector2.h" />

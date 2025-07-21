@@ -14,25 +14,26 @@ public:
 		return m_materialization;
 	}
 
-	void Update();
+	void Update(float fallSpeed);
 	bool RangeJudge();
 	void Draw();
 
 	//ソート用
 	bool operator<(const Paddle& rhs) const
 	{
-		return sort_y < rhs.sort_y;
+		return m_sort_y < rhs.m_sort_y;
 	}
 	void Set_sort_y() {
-		sort_y = _center.Get_y();
+		m_sort_y = _center.Get_y();
 	}
 
 private:
 	bool m_materialization;//プレイヤーに踏まれて実体化したかどうか
-	int flyingAngle;//飛ぶ角度(踏まれるまで)
+	int m_flyingAngle;//飛ぶ角度(踏まれるまで)
 
-	float paddleSpeed;//非実体化時の速度
-	float vel;//実体化時の速度
+	float m_paddleSpeed;//非実体化時の速度
 
-	float sort_y;//ソート用
+	float m_sort_y;//ソート用
+
+	unsigned int m_color{};
 };

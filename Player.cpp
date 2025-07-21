@@ -7,12 +7,11 @@
 //ジャンプ
 float jumpInputTime = 0;//ジャンプ入力がされた時間
 
-float reductionMag = 4;//縮小倍率
-
 Player::Player(Vector2<float> pos) {
-	_gHandle = LoadGraph("画像/figure_jump.png");//358*400
+	_gHandle = LoadGraph("画像/300-300.png");//使う画像
+	//GetGraphSize(_gHandle, &PlayerPictureWidth, &PlayerPictureHeight);//画像サイズを取得
 
-	Vector2<float> size(PlayerPictureWidth / reductionMag, PlayerPictureHeight / reductionMag);
+	Vector2<float> size(PlayerPictureWidth / ReductionMag, PlayerPictureHeight / ReductionMag);
 
 	_center = pos;
 	_size = size;
@@ -45,13 +44,13 @@ void Player::Update() {
 	//ジャンプ
 	if (InputManager::getInstance()->GetKeyDown_SPACE() && canJump) {
 		canJump = false;
-		vel_y = -0.6f;
+		vel_y = -1.0f * PlayerJumpPower;
 		jumpInputTime = GetNowHiPerformanceCount() / 1000000.0f;
 	}
 	if (!canJump) {
 		//ジャンプボタンが離されたら
 		if (InputManager::getInstance()->GetKeyUp_SPACE()) {
-			if ((GetNowHiPerformanceCount() / 1000000.0f) - jumpInputTime < 0.1f) vel_y = (-0.15f);
+			if ((GetNowHiPerformanceCount() / 1000000.0f) - jumpInputTime < 0.1f) vel_y += 0.2f;
 		}
 	}
 	_movementPerFrame.Set_y(_movementPerFrame.Get_y() + vel_y);

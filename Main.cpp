@@ -3,19 +3,13 @@
 #include "InputManager.h"
 #include "FrameRate.h"
 #include <time.h>//乱数
+#include "Title.h"
 #include "MainGame.h"
-
-//※
-//実体化したパドルの降下スピードより、プレイヤーの降下速度が小さくならない様にする
-
-//デバッグモードを作る
-//デバッグモード終了時に変更を適用する関数を作る
-
-//画面遷移を作る
+#include "Result.h"
+#include "ScoreManager.h"
 
 //メニューを作るに当たって、現在時刻を取得する処理を工夫して
-
-//パドルの速度を乱数で早くする
+//パドルの出す間隔調整
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -32,9 +26,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	srand((unsigned int)time(NULL));//乱数初期化
 
 	InputManager::create();
+	ScoreManager scoreManager;
 
-
-	SequenceBase* currentScene = new MainGame();
+	SequenceBase* currentScene = new Title();
 	currentScene->Enter();
 
 	while (ProcessMessage() == 0) {
@@ -42,12 +36,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		ClearDrawScreen();//画面クリア
 
-		SequenceBase* nextScene = currentScene->Execute();
+		SequenceBase* nextScene = currentScene->Execute(scoreManager);
 		if (nextScene != currentScene) 
 		{
 			currentScene->Exit();
 			delete currentScene;
 			currentScene = nextScene;
+			currentScene->Enter();
 		}
 
 		ScreenFlip();//表示
@@ -57,6 +52,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		//ゲーム終了(デバッグ)
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1) break;
+	}
+
+	if (currentScene) {
+		currentScene->Exit();
+		delete currentScene;
+		currentScene = nullptr;
 	}
 
 	InputManager::destroy();
