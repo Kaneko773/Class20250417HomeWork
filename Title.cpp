@@ -4,19 +4,14 @@
 #include "Title.h"
 #include "MainGame.h"
 
-void Title::Enter()
+void Title::Enter(ScoreManager& scoreManager)
 {
-
+	m_highScore = scoreManager.Get_highScore();
 }
 
-SequenceBase* Title::Execute(ScoreManager& scoreManager)
+SequenceBase* Title::Execute()
 {
 	SequenceBase* next = this;
-
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "ハイスコア : %d 秒", scoreManager.Get_highScore());
-
-	int DrawWidth = GetDrawStringWidth("SPACEを押してゲームスタート", -1);
-	DrawString((ScreenWidth - DrawWidth) / 2, ScreenHeight / 2, "SPACEを押してゲームスタート", GetColor(255, 255, 255));
 
 	if (InputManager::getInstance()->GetKeyDown_SPACE()) {
 		next = new MainGame();
@@ -25,7 +20,15 @@ SequenceBase* Title::Execute(ScoreManager& scoreManager)
 	return next;
 }
 
-void Title::Exit()
+void Title::Exit(ScoreManager& scoreManager)
 {
 
+}
+
+void Title::Draw() 
+{
+	DrawFormatString(30, 30, GetColor(255, 255, 255), "ハイスコア : %d 秒", m_highScore);
+
+	int DrawWidth = GetDrawStringWidth("SPACEを押してゲームスタート", -1);
+	DrawString((ScreenWidth - DrawWidth) / 2, ScreenHeight / 2, "SPACEを押してゲームスタート", GetColor(255, 255, 255));
 }

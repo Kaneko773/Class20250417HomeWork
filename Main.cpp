@@ -29,33 +29,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ScoreManager scoreManager;
 
 	SequenceBase* currentScene = new Title();
-	currentScene->Enter();
+	currentScene->Enter(scoreManager);
 
 	while (ProcessMessage() == 0) {
-		InputManager::getInstance()->FrameStart();
+		InputManager::getInstance()->FrameStart();//入力更新
 
 		ClearDrawScreen();//画面クリア
 
-		SequenceBase* nextScene = currentScene->Execute(scoreManager);
-		if (nextScene != currentScene) 
+		SequenceBase* nextScene = currentScene->Execute();//更新
+		currentScene->Draw();//描画
+		if (nextScene != currentScene) //遷移
 		{
-			currentScene->Exit();
+			currentScene->Exit(scoreManager);
 			delete currentScene;
 			currentScene = nextScene;
-			currentScene->Enter();
+			currentScene->Enter(scoreManager);
 		}
 
 		ScreenFlip();//表示
 
 		FrameRate::FrameRateUpdate();//フレームレート更新
-		InputManager::getInstance()->FrameEnd();
+		InputManager::getInstance()->FrameEnd();//入力更新
 
 		//ゲーム終了(デバッグ)
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1) break;
 	}
 
 	if (currentScene) {
-		currentScene->Exit();
+		currentScene->Exit(scoreManager);
 		delete currentScene;
 		currentScene = nullptr;
 	}

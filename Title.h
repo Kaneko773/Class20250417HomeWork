@@ -3,10 +3,15 @@
 
 class Title : public SequenceBase
 {
-    void Enter() override;
+    void Enter(ScoreManager& scoreManager) override;
 
-    SequenceBase* Execute(ScoreManager& scoreManager) override;
+    SequenceBase* Execute() override;
 
-    void Exit() override;
+    void Exit(ScoreManager& scoreManager) override;
+
+    void Draw() override;
+
+private:
+    int m_highScore;
 };
 

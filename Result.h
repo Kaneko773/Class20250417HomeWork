@@ -10,13 +10,17 @@ namespace ResultScene {
 
 class Result : public SequenceBase
 {
-    void Enter() override;
+    void Enter(ScoreManager& scoreManager) override;
 
-    SequenceBase* Execute(ScoreManager& scoreManager) override;
+    SequenceBase* Execute() override;
 
-    void Exit() override;
+    void Exit(ScoreManager& scoreManager) override;
+
+    void Draw() override;
 
 private:
-    ResultScene::NextScene nextScene{};
+    ResultScene::NextScene m_nextScene{};
+
+    int m_enduredTime;
 };
 

@@ -25,5 +25,7 @@ public:
 private:
 	int _gHandle;
 	bool canJump;//ジャンプ出来るかどうか
+
+	float jumpInputTime;//ジャンプ入力がされた時間
 };
 

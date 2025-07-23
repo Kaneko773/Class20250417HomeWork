@@ -12,13 +12,15 @@ class Paddle;
 
 class MainGame : public SequenceBase
 {
-    void Enter() override;
+    void Enter(ScoreManager& scoreManager) override;
 
-    SequenceBase* Execute(ScoreManager& scoreManager) override;
+    SequenceBase* Execute() override;
 
-    void Exit() override;
+    void Exit(ScoreManager& scoreManager) override;
 
     bool Menu();
+
+    void Draw() override;
 
 private:
     Player* player;

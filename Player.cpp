@@ -4,9 +4,6 @@
 #include "FrameRate.h"
 #include "InputManager.h"
 
-//ジャンプ
-float jumpInputTime = 0;//ジャンプ入力がされた時間
-
 Player::Player(Vector2<float> pos) {
 	_gHandle = LoadGraph("画像/300-300.png");//使う画像
 	//GetGraphSize(_gHandle, &PlayerPictureWidth, &PlayerPictureHeight);//画像サイズを取得
@@ -19,6 +16,8 @@ Player::Player(Vector2<float> pos) {
 	canJump = false;
 
 	vel_y = 0;
+
+	jumpInputTime = 0;
 }
 Player::~Player() {
 	DeleteGraph(_gHandle);
