@@ -8,9 +8,6 @@
 #include "Result.h"
 #include "ScoreManager.h"
 
-//メニューを作るに当たって、現在時刻を取得する処理を工夫して
-//パドルの出す間隔調整
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	// ウインドウモードで起動
