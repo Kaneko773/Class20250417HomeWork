@@ -1,16 +1,15 @@
 #pragma once
 
+#define KEY_CNT 256
+
 class InputManager
 {
 public:
-	void FrameStart();//フレームの最初に呼ぶ
-	void FrameEnd();//フレームの最後に呼ぶ
 
-	bool GetKeyDown_W();
-	bool GetKeyDown_S();
-	bool GetKeyDown_M();
-	bool GetKeyDown_SPACE();
-	bool GetKeyUp_SPACE();
+	void Update_Key();
+
+	char key_down[KEY_CNT];		//押された瞬間
+	char key_up[KEY_CNT];		//離された瞬間
 
 	InputManager(const InputManager&) = delete;
 	void operator=(const InputManager&) = delete;
@@ -22,14 +21,8 @@ private:
 private:
 	static InputManager* pInstance;
 
-	int inputW;
-	int prevInputW;
-	int inputS;
-	int prevInputS;
-	int inputM;
-	int prevInputM;
-	int inputSPACE;
-	int prevInputSPACE;
+	char keybuf[KEY_CNT];		//キーバッファ (現フレーム)
+	char keybuf_old[KEY_CNT];   //1つ前のキーバッファ(前フレーム) 
 
 public:
 	static InputManager* getInstance();

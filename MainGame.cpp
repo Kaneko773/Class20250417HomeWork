@@ -2,66 +2,86 @@
 #include "DxLib.h"
 #include "GameInfo.h"
 #include "Player.h"
-#include "Paddle.h"
-#include "FrameRate.h"
+#include "FrameRateManager.h"
 #include <time.h>//乱数
 #include "HitJudgeManager.h"
 #include <cmath>//atan
 #include "InputManager.h"
 #include "Result.h"
 #include "Title.h"
+#include "ScoreManager.h"
 
-using namespace std;
+MainGame::MainGame()
+{
+	player = nullptr;
+	timer = 0;
+	nextPaddleCreateTime = 0;
+	isMenu = false;
+	menuSelect = Menu_Select::BackGame;
+	paddleFallSpeed = 0;
+}
+MainGame::~MainGame()
+{
+	if (player) {
+		delete player;
+		player = nullptr;
+	}
+	if (paddles.size() > 0) {
+		paddles.clear();
+	}
+}
 
-void MainGame::Enter(ScoreManager& scoreManager)
+void MainGame::Enter()
 {
 	timer = 0.0f;
 	nextPaddleCreateTime = PaddleCreateCoolTime;
 
 	//生成
-	player = new Player(Vector2<float>(ScreenWidth / 2, ScreenHeight / 2 - 200.0f));
-	Paddle* firstPaddle = new Paddle(Vector2<float>(ScreenWidth / 2, ScreenHeight / 2), Vector2<float>(100, 100));
-	firstPaddle->SteppedOn();
+	player = new Player(Vector2{ ScreenWidth / 2, ScreenHeight / 2 - 200.0f }, { PlayerPictureWidth / ReductionMag, PlayerPictureHeight / ReductionMag });
+	Paddle firstPaddle = { Vector2{ScreenWidth / 2, ScreenHeight / 2}, Vector2{100, 100} };
+	firstPaddle.SteppedOn();
 	paddles.push_back(firstPaddle);
 
 	//初期化
 	HitJudgeManager::create();
 
 	isMenu = false;
-	menu_select = Menu_Select::BackGame;
+	menuSelect = Menu_Select::BackGame;
 
 	paddleFallSpeed = 1.0f;
+
+	FrameRateManager::create();
 }
 
 bool MainGame::Menu() 
 {
 	//選択
-	if (InputManager::getInstance()->GetKeyDown_W()) {
-		switch (menu_select)
+	if (InputManager::getInstance()->key_down[KEY_INPUT_W]) {
+		switch (menuSelect)
 		{
 		case Menu_Select::BackGame:
-			menu_select = Menu_Select::GoTitle;
+			menuSelect = Menu_Select::GoTitle;
 			break;
 		case Menu_Select::GoTitle:
-			menu_select = Menu_Select::BackGame;
+			menuSelect = Menu_Select::BackGame;
 			break;
 		}
 	}
-	else if (InputManager::getInstance()->GetKeyDown_S()) {
-		switch (menu_select)
+	else if (InputManager::getInstance()->key_down[KEY_INPUT_S]) {
+		switch (menuSelect)
 		{
 		case Menu_Select::BackGame:
-			menu_select = Menu_Select::GoTitle;
+			menuSelect = Menu_Select::GoTitle;
 			break;
 		case Menu_Select::GoTitle:
-			menu_select = Menu_Select::BackGame;
+			menuSelect = Menu_Select::BackGame;
 			break;
 		}
 	}
 
 	//決定
-	if (InputManager::getInstance()->GetKeyDown_SPACE()) {
-		switch (menu_select)
+	if (InputManager::getInstance()->key_down[KEY_INPUT_SPACE]) {
+		switch (menuSelect)
 		{
 		case Menu_Select::BackGame:
 			isMenu = false;
@@ -79,39 +99,48 @@ SequenceBase* MainGame::Execute()
 {
 	SequenceBase* next = this;
 
-	//ゲーム処理
-	if (!isMenu) {
+	//メニュー画面を開いてる
+	if (isMenu) 
+	{
+		if (!Menu()) 
+		{
+			next = new Title();
+		}
+	}
+	//メニュー画面を開いてる
+	else
+	{
 		//プレイヤーとパドルのUpdate
 		player->Update();
-		paddleFallSpeed += PaddleAcceleration * FrameRate::Get_Deltatime();
+		paddleFallSpeed += PaddleAcceleration * FrameRateManager::getInstance()->Get_Deltatime();
 		for (auto i = paddles.begin(); i != paddles.end(); ++i) {
-			(*i)->Update(paddleFallSpeed);
+			i->Update(paddleFallSpeed);
 		}
 
-		float angle = atan2(player->_movementPerFrame.Get_y(), player->_movementPerFrame.Get_x()) * 180.0f / 3.14159265f;
+		float angle = atan2(player->movementPerFrame.y, player->movementPerFrame.x) * 180.0f / 3.14159265f;
 		if (0 <= angle && angle <= 180)
 		{
 			//パドルリストのソート
 			for (auto i = paddles.begin(); i != paddles.end(); ++i) {
-				(*i)->Set_sort_y();//ソート用に値を設定
+				i->Set_sort_y();//ソート用に値を設定
 			}
 			paddles.sort();
 
 			//衝突判定と応答
 			for (auto i = paddles.begin(); i != paddles.end(); ++i) {
-				HitJudgeManager::getInstance()->ColliderUpdate(player, *i);
+				HitJudgeManager::getInstance()->ColliderUpdate(player, &(*i));
 			}
 		}
 
 		//衝突応答しなかったものを動かす
-		if (!player->_isCollisionResponse)player->_center += player->_movementPerFrame;
+		if (!player->isCollisionResponse) player->MoveByRate();
 		for (auto i = paddles.begin(); i != paddles.end(); ++i) {
-			if (!(*i)->_isCollisionResponse) (*i)->_center += (*i)->_movementPerFrame;
+			if (!i->isCollisionResponse) i->MoveByRate();
 		}
 
 		//パドルの範囲判定
 		for (auto i = paddles.begin(); i != paddles.end();) {
-			if (!(*i)->RangeJudge()) {
+			if (!i->RangeJudge()) {
 				i = paddles.erase(i);
 			}
 			else {
@@ -121,40 +150,32 @@ SequenceBase* MainGame::Execute()
 
 		//パドル生成
 		if (player->Get_canJump() && timer > nextPaddleCreateTime) {
-			int createPosY = (int)player->Get_topSide() - (rand() % (Max_PaddleCreateHeight - Min_PaddleCreateHeight + 1) + Min_PaddleCreateHeight);//生成する高さ プレイヤーの頭上100～200
+			int createPosY = (int)player->fourSides.topSide - (rand() % (Max_PaddleCreateHeight - Min_PaddleCreateHeight + 1) + Min_PaddleCreateHeight);//生成する高さ プレイヤーの頭上100～200
 			//生成
 			int createPosX = (rand() % 2 == 0) ? -1 * (PaddleSizeWidth / 2) : ScreenWidth + (PaddleSizeWidth / 2);
-			Paddle* paddle = new Paddle(Vector2<float>((float)createPosX, (float)createPosY), Vector2<float>(PaddleSizeWidth, PaddleSizeHeight));
+			Paddle paddle = { Vector2{(float)createPosX, (float)createPosY}, Vector2{PaddleSizeWidth, PaddleSizeHeight} };
 			paddles.push_back(paddle);
 			//更新
 			nextPaddleCreateTime += rand() / 3 == 0 ? PaddleCreateCoolTime / 4.0f : PaddleCreateCoolTime;//３分の１でクールタイムが縮む
 		}
 
 		//メニュー画面を開く
-		if (InputManager::getInstance()->GetKeyDown_M()) {
+		if (InputManager::getInstance()->key_down[KEY_INPUT_M]) {
 			isMenu = true;
 		}
-	}
 
-	//メニュー
-	if (isMenu) {
-		if (!Menu()) {
-			next = new Title();
+		//ゲームオーバー
+		if (player->fourSides.bottomSide > ScreenHeight - DeadZoneHeight) {
+			next = new Result();
 		}
-	}
 
-	//時間更新
-	if(!isMenu) timer += FrameRate::Get_Deltatime();
-
-	//ゲームオーバー
-	if (player->Get_bottomSide() > ScreenHeight - DeadZoneHeight) {
-		next = new Result();
+		timer += FrameRateManager::getInstance()->Get_Deltatime();
 	}
 
 	return next;
 }
 
-void MainGame::Exit(ScoreManager& scoreManager)
+void MainGame::Exit()
 {
 	HitJudgeManager::destroy();
 
@@ -165,7 +186,9 @@ void MainGame::Exit(ScoreManager& scoreManager)
 
 	paddles.clear();
 
-	scoreManager.Set_prevGameScore((int)timer);
+	ScoreManager::getInstance()->Set_prevGameScore((int)timer);
+
+	FrameRateManager::destroy();
 }
 
 void MainGame::Draw()
@@ -174,7 +197,7 @@ void MainGame::Draw()
 	player->Draw();
 	//パドル
 	for (auto i = paddles.begin(); i != paddles.end(); ++i) {
-		(*i)->Draw();
+		i->Draw();
 	}
 	//下のトゲトゲ
 	for (int i = 1; i <= 24; ++i) {
@@ -194,7 +217,7 @@ void MainGame::Draw()
 		int DrawWidth3 = GetDrawStringWidth("タイトルへ", -1);
 		DrawString((ScreenWidth - DrawWidth3) / 2, ScreenHeight / 2 - 20, "　続ける　", GetColor(255, 255, 255));
 		DrawString((ScreenWidth - DrawWidth3) / 2, ScreenHeight / 2 + 20, "タイトルへ", GetColor(255, 255, 255));
-		switch (menu_select)
+		switch (menuSelect)
 		{
 		case Menu_Select::BackGame:
 			DrawString((ScreenWidth - DrawWidth3) / 2 - 30, ScreenHeight / 2 - 20, "→", GetColor(255, 255, 255));

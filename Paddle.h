@@ -4,36 +4,36 @@
 class Paddle : public BoxCollider
 {
 public:
-	Paddle(Vector2<float> pos, Vector2<float> size);
-	virtual ~Paddle();
+	Paddle(Vector2 pos, Vector2 size);
+	~Paddle();
 
 	void SteppedOn() {
-		m_materialization = true;
+		materialization = true;
 	}
-	bool Get_m_materialization() {
-		return m_materialization;
+	bool Get_m_materialization() const{
+		return materialization;
 	}
 
 	void Update(float fallSpeed);
-	bool RangeJudge();
-	void Draw();
+	bool RangeJudge() const;
+	void Draw() const;
 
 	//ソート用
-	bool operator<(const Paddle& rhs) const
+	bool operator<(const Paddle& rhs) const//y座標を比べるので昇順のまま
 	{
-		return m_sort_y < rhs.m_sort_y;
+		return sort_y < rhs.sort_y;
 	}
 	void Set_sort_y() {
-		m_sort_y = _center.Get_y();
+		sort_y = center.y;
 	}
 
 private:
-	bool m_materialization;//プレイヤーに踏まれて実体化したかどうか
-	int m_flyingAngle;//飛ぶ角度(踏まれるまで)
+	bool materialization;//プレイヤーに踏まれて実体化したかどうか
+	int flyingAngle;//飛ぶ角度(踏まれるまで)
 
-	float m_paddleSpeed;//非実体化時の速度
+	float paddleSpeed;//非実体化時の速度
 
-	float m_sort_y;//ソート用
+	float sort_y;//ソート用
 
-	unsigned int m_color{};
+	unsigned int color;//パドルの色
 };

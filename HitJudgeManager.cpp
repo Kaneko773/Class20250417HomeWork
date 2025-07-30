@@ -3,7 +3,6 @@
 #include "Player.h"
 #include "Paddle.h"
 
-// 唯一のインスタンス
 HitJudgeManager* HitJudgeManager::pInstance = nullptr;
 HitJudgeManager* HitJudgeManager::getInstance()
 {
@@ -33,20 +32,20 @@ void HitJudgeManager::destroy()
 
 void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle)
 {
-	if (player->_isCollisionResponse) return;//プレイヤーが衝突応答していたら、このフレームではもう判定しない
+	if (player->isCollisionResponse) return;//プレイヤーが衝突応答していたら、このフレームではもう判定しない
 
 	//実体化してる
 	if (paddle->Get_m_materialization())
 	{
-		paddle->_center += paddle->_movementPerFrame;//パドルは先に動かす
+		paddle->MoveByRate();//パドルは先に動かす
 		if (HitJudge_materialization(player, paddle))
 		{
-			player->_center = { player->_center.Get_x(), paddle->Get_topSide() - player->_size.Get_height() / 2.0f };//パドルの上に立つ
+			player->FixedMove({ player->center.x, paddle->fourSides.topSide - player->size.height / 2.0f });//パドルの上に立つ
 
 			player->CanJump();
 			player->vel_y = 0;
-			player->_isCollisionResponse = true;
-			paddle->_isCollisionResponse = true;
+			player->isCollisionResponse = true;
+			paddle->isCollisionResponse = true;
 		}
 	}
 	//実体化してない
@@ -55,27 +54,28 @@ void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle)
 		float temp = HitJudge_notMaterialization(player, paddle);//パドルの移動ベクトル上で、プレイヤーと当たった場所の割合が返ってくる(-1だと当たってない)
 		if (temp != -1)
 		{
-			paddle->_center += paddle->_movementPerFrame * temp;//当たったとこまで移動
-			player->_center = { player->_center.Get_x(), paddle->Get_topSide() - player->_size.Get_height() / 2.0f };//パドルの上に立つ
+			paddle->MoveByRate(temp);//当たったとこまで移動
+			player->FixedMove({ player->center.x, paddle->fourSides.topSide - player->size.height / 2.0f });//パドルの上に立つ
 
 			paddle->SteppedOn();//パドルを実体化
 
 			player->CanJump();
 			player->vel_y = 0;
-			player->_isCollisionResponse = true;
-			paddle->_isCollisionResponse = true;
+			player->isCollisionResponse = true;
+			paddle->isCollisionResponse = true;
 		}
 	}
 }
 
-float Cross(Vector2<float> vector1, Vector2<float> vector2) {
-	return vector1.Get_x() * vector2.Get_y() - vector1.Get_y() * vector2.Get_x();
+float HitJudgeManager::Cross(const Vector2& vector1, const Vector2& vector2) const
+{
+	return vector1.x * vector2.y - vector1.y * vector2.x;
 }
 //渡されたベクトル同士が交差してるかどうか
-bool IsCross(Vector2<float> startPoint1, Vector2<float> endPoint1, Vector2<float> startPoint2, Vector2<float> endPoint2) {
-
-	Vector2<float> vector1 = endPoint1 - startPoint1;
-	Vector2<float> vector2 = endPoint2 - startPoint2;
+bool HitJudgeManager::IsCross(Vector2 startPoint1, Vector2 endPoint1, Vector2 startPoint2, Vector2 endPoint2) const
+{
+	Vector2 vector1 = endPoint1 - startPoint1;
+	Vector2 vector2 = endPoint2 - startPoint2;
 
 	if (Cross(vector1, startPoint2 - startPoint1) * Cross(vector1, endPoint2 - startPoint1) < 0 &&
 		Cross(vector2, startPoint1 - startPoint2) * Cross(vector2, endPoint1 - startPoint2) < 0)
@@ -88,18 +88,18 @@ bool HitJudgeManager::HitJudge_materialization(BoxCollider* player, BoxCollider*
 {
 	//プレイヤーの足元(左下)
 	if (IsCross(
-		{ player->Get_leftSide(), player->Get_bottomSide() },
-		{ player->Get_leftSide() + player->_movementPerFrame.Get_x(), player->Get_bottomSide() + player->_movementPerFrame.Get_y() },
-		{ paddle->Get_leftSide(), paddle->Get_topSide() },
-		{ paddle->Get_rightSide(), paddle->Get_topSide() })
+		{ player->fourSides.leftSide, player->fourSides.bottomSide },
+		{ player->fourSides.leftSide + player->movementPerFrame.x, player->fourSides.bottomSide + player->movementPerFrame.y },
+		{ paddle->fourSides.leftSide, paddle->fourSides.topSide },
+		{ paddle->fourSides.rightSide, paddle->fourSides.topSide })
 		)
 		return true;
 	//プレイヤーの足元(右下)
 	if (IsCross(
-		{ player->Get_rightSide(), player->Get_bottomSide() },
-		{ player->Get_rightSide() + player->_movementPerFrame.Get_x(), player->Get_bottomSide() + player->_movementPerFrame.Get_y() },
-		{ paddle->Get_leftSide(), paddle->Get_topSide() },
-		{ paddle->Get_rightSide(), paddle->Get_topSide() })
+		{ player->fourSides.rightSide, player->fourSides.bottomSide },
+		{ player->fourSides.rightSide + player->movementPerFrame.x, player->fourSides.bottomSide + player->movementPerFrame.y },
+		{ paddle->fourSides.leftSide, paddle->fourSides.topSide },
+		{ paddle->fourSides.rightSide, paddle->fourSides.topSide })
 		)
 		return true;
 
@@ -113,20 +113,20 @@ float HitJudgeManager::HitJudge_notMaterialization(BoxCollider* player, BoxColli
 	//プレイヤーの足元(左下)とパドルの上辺
 	for (float i = 0; i <= 1.0f; i += 0.5f) {
 		if (IsCross(
-			{ player->Get_leftSide(), player->Get_bottomSide() },
-			{ player->Get_leftSide() + player->_movementPerFrame.Get_x(), player->Get_bottomSide() + player->_movementPerFrame.Get_y() },
-			{ paddle->Get_leftSide() + paddle->_movementPerFrame.Get_x() * i, paddle->Get_topSide() + paddle->_movementPerFrame.Get_y() * i },
-			{ paddle->Get_rightSide() + paddle->_movementPerFrame.Get_x() * i, paddle->Get_topSide() + paddle->_movementPerFrame.Get_y() * i })
+			{ player->fourSides.leftSide, player->fourSides.bottomSide },
+			{ player->fourSides.leftSide + player->movementPerFrame.x, player->fourSides.bottomSide + player->movementPerFrame.y },
+			{ paddle->fourSides.leftSide + paddle->movementPerFrame.x * i, paddle->fourSides.topSide + paddle->movementPerFrame.y * i },
+			{ paddle->fourSides.rightSide + paddle->movementPerFrame.x * i, paddle->fourSides.topSide + paddle->movementPerFrame.y * i })
 			)
 			return i;
 	}
 	//プレイヤーの足元(右下)とパドルの左上
 	for (float i = 0; i <= 1.0f; i += 0.5f) {
 		if (IsCross(
-			{ player->Get_rightSide(), player->Get_bottomSide() },
-			{ player->Get_rightSide() + player->_movementPerFrame.Get_x(), player->Get_bottomSide() + player->_movementPerFrame.Get_y() },
-			{ paddle->Get_leftSide() + paddle->_movementPerFrame.Get_x() * i, paddle->Get_topSide() + paddle->_movementPerFrame.Get_y() * i },
-			{ paddle->Get_rightSide() + paddle->_movementPerFrame.Get_x() * i, paddle->Get_topSide() + paddle->_movementPerFrame.Get_y() * i })
+			{ player->fourSides.rightSide, player->fourSides.bottomSide },
+			{ player->fourSides.rightSide + player->movementPerFrame.x, player->fourSides.bottomSide + player->movementPerFrame.y },
+			{ paddle->fourSides.leftSide + paddle->movementPerFrame.x * i, paddle->fourSides.topSide + paddle->movementPerFrame.y * i },
+			{ paddle->fourSides.rightSide + paddle->movementPerFrame.x * i, paddle->fourSides.topSide + paddle->movementPerFrame.y * i })
 			)
 			return i;
 	}

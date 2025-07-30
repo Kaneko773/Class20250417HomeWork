@@ -4,12 +4,20 @@
 #include "InputManager.h"
 #include "Title.h"
 #include "MainGame.h"
+#include "ScoreManager.h"
 
-void Result::Enter(ScoreManager& scoreManager)
+Result::Result()
 {
-	m_nextScene = ResultScene::NextScene::title;
+	nextScene = ResultScene::NextScene::title;
+}
+Result::~Result()
+{
 
-	m_enduredTime = scoreManager.Get_prevGameScore();
+}
+
+void Result::Enter()
+{
+	nextScene = ResultScene::NextScene::title;
 }
 
 SequenceBase* Result::Execute()
@@ -17,32 +25,32 @@ SequenceBase* Result::Execute()
 	SequenceBase* next = this;
 
 	//選択
-	if (InputManager::getInstance()->GetKeyDown_W()) {
-		switch (m_nextScene)
+	if (InputManager::getInstance()->key_down[KEY_INPUT_W]) {
+		switch (nextScene)
 		{
 		case ResultScene::NextScene::title:
-			m_nextScene = ResultScene::NextScene::mainGame;
+			nextScene = ResultScene::NextScene::mainGame;
 			break;
 		case ResultScene::NextScene::mainGame:
-			m_nextScene = ResultScene::NextScene::title;
+			nextScene = ResultScene::NextScene::title;
 			break;
 		}
 	}
-	else if (InputManager::getInstance()->GetKeyDown_S()) {
-		switch (m_nextScene)
+	else if (InputManager::getInstance()->key_down[KEY_INPUT_S]) {
+		switch (nextScene)
 		{
 		case ResultScene::NextScene::title:
-			m_nextScene = ResultScene::NextScene::mainGame;
+			nextScene = ResultScene::NextScene::mainGame;
 			break;
 		case ResultScene::NextScene::mainGame:
-			m_nextScene = ResultScene::NextScene::title;
+			nextScene = ResultScene::NextScene::title;
 			break;
 		}
 	}
 
 	//決定
-	if (InputManager::getInstance()->GetKeyDown_SPACE()) {
-		switch (m_nextScene)
+	if (InputManager::getInstance()->key_down[KEY_INPUT_SPACE]) {
+		switch (nextScene)
 		{
 		case ResultScene::title:
 			next = new Title();
@@ -56,7 +64,7 @@ SequenceBase* Result::Execute()
 	return next;
 }
 
-void Result::Exit(ScoreManager& scoreManager)
+void Result::Exit()
 {
 
 }
@@ -65,13 +73,13 @@ void Result::Draw()
 {
 	//ふんばった時間表示
 	int DrawWidth1 = GetDrawStringWidth("ふんばった時間 :     秒", -1);
-	DrawFormatString((ScreenWidth - DrawWidth1) / 2, ScreenHeight / 4, GetColor(255, 255, 255), "ふんばった時間 : %d 秒", m_enduredTime);
+	DrawFormatString((ScreenWidth - DrawWidth1) / 2, ScreenHeight / 4, GetColor(255, 255, 255), "ふんばった時間 : %d 秒", ScoreManager::getInstance()->Get_prevGameScore());
 
 	//選択肢表示
 	int DrawWidth3 = GetDrawStringWidth("タイトルへ", -1);
 	DrawString((ScreenWidth - DrawWidth3) / 2, ScreenHeight / 2 - 20, "タイトルへ", GetColor(255, 255, 255));
 	DrawString((ScreenWidth - DrawWidth3) / 2, ScreenHeight / 2 + 20, "　再挑戦　", GetColor(255, 255, 255));
-	switch (m_nextScene)
+	switch (nextScene)
 	{
 	case ResultScene::title:
 		DrawString((ScreenWidth - DrawWidth3) / 2 - 30, ScreenHeight / 2 - 20, "→", GetColor(255, 255, 255));

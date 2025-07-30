@@ -2,10 +2,14 @@
 #include "DxLib.h"
 
 InputManager::InputManager() {
-	inputW = prevInputW = 0;
-	inputS = prevInputS = 0;
-	inputM = prevInputM = 0;
-	inputSPACE = prevInputSPACE = 0;
+	for (int i = 0; i < KEY_CNT; ++i)
+	{
+		keybuf[i] = 0;
+		keybuf_old[i] = 0;
+		key_down[i] = 0;
+		key_up[i] = 0;
+	}
+
 }
 
 // 唯一のインスタンス
@@ -36,43 +40,19 @@ void InputManager::destroy()
 	}
 }
 
-void InputManager::FrameStart()
+void InputManager::Update_Key()
 {
-	inputW = CheckHitKey(KEY_INPUT_W);
-	inputS = CheckHitKey(KEY_INPUT_S);
-	inputM = CheckHitKey(KEY_INPUT_M);
-	inputSPACE = CheckHitKey(KEY_INPUT_SPACE);
-}
+	for (int i = 0; i < KEY_CNT; ++i)
+	{
+		keybuf_old[i] = keybuf[i];
+	}
 
-void InputManager::FrameEnd()
-{
-	prevInputW = inputW;
-	prevInputS = inputS;
-	prevInputM = inputM;
-	prevInputSPACE = inputSPACE;
-}
+	GetHitKeyStateAll(keybuf);
 
-bool InputManager::GetKeyDown_W()
-{
-	return inputW && prevInputW == 0;
-}
-
-bool InputManager::GetKeyDown_S()
-{
-	return inputS == 1 && prevInputS == 0;
-}
-
-bool InputManager::GetKeyDown_M()
-{
-	return inputM == 1 && prevInputM == 0;
-}
-
-bool InputManager::GetKeyDown_SPACE()
-{
-	return inputSPACE == 1 && prevInputSPACE == 0;
-}
-
-bool InputManager::GetKeyUp_SPACE()
-{
-	return inputSPACE == 0 && prevInputSPACE == 1;
+	for (int i = 0; i < KEY_CNT; ++i)
+	{
+		int key_xor = keybuf[i] ^ keybuf_old[i];
+		key_down[i] = key_xor & keybuf[i];
+		key_up[i] = key_xor & keybuf_old[i];
+	}
 }

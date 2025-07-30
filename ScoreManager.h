@@ -3,26 +3,30 @@
 class ScoreManager
 {
 public:
-	ScoreManager() {
-		_highScore = 0;
-		_prevGameScore = 0;
-	}
-
 	int Get_highScore() const {
-		return _highScore;
+		return highScore;
 	}
 	int Get_prevGameScore() const {
-		return _prevGameScore;
+		return prevGameScore;
 	}
-	void Set_prevGameScore(int score) {
-		_prevGameScore = score;
-		if (_prevGameScore > _highScore) {
-			_highScore = _prevGameScore;
-		}
-	}
+	void Set_prevGameScore(int score);
+
+	ScoreManager(const ScoreManager&) = delete;
+	void operator=(const ScoreManager&) = delete;
 
 private:
-	int _highScore;
-	int _prevGameScore;
+	ScoreManager();
+	virtual ~ScoreManager() {};
+
+private:
+	static ScoreManager* pInstance;
+
+	int highScore;
+	int prevGameScore;
+
+public:
+	static ScoreManager* getInstance();
+	static void create();
+	static void destroy();
 };
 

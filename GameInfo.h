@@ -4,9 +4,6 @@ const int PlayerPictureWidth = 300;
 const int PlayerPictureHeight = 300;
 const float ReductionMag = 4;//画像の縮小倍率
 
-// プレイヤーの速度( 1秒間に移動するドット数 )、横移動用
-//float add = 200.0f;
-
 
 //調整可能
 
@@ -28,6 +25,6 @@ const int PaddleSizeWidth = 100;
 const int PaddleSizeHeight = 10;
 //パドルを生成する高さ
 const int Max_PaddleCreateHeight = 150;
-const int Min_PaddleCreateHeight = 80;
+const int Min_PaddleCreateHeight = -80;
 //パドル生成の間隔
-const float PaddleCreateCoolTime = 2.0f;
+const float PaddleCreateCoolTime = 0.01f;

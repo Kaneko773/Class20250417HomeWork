@@ -1,7 +1,7 @@
 #include "DxLib.h"
 #include "GameInfo.h"
 #include "InputManager.h"
-#include "FrameRate.h"
+#include "FrameRateManager.h"
 #include <time.h>//乱数
 #include "Title.h"
 #include "MainGame.h"
@@ -23,13 +23,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	srand((unsigned int)time(NULL));//乱数初期化
 
 	InputManager::create();
-	ScoreManager scoreManager;
+	ScoreManager::create();
 
 	SequenceBase* currentScene = new Title();
-	currentScene->Enter(scoreManager);
+	currentScene->Enter();
 
 	while (ProcessMessage() == 0) {
-		InputManager::getInstance()->FrameStart();//入力更新
+
+		InputManager::getInstance()->Update_Key();
 
 		ClearDrawScreen();//画面クリア
 
@@ -37,28 +38,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		currentScene->Draw();//描画
 		if (nextScene != currentScene) //遷移
 		{
-			currentScene->Exit(scoreManager);
+			currentScene->Exit();
 			delete currentScene;
 			currentScene = nextScene;
-			currentScene->Enter(scoreManager);
+			currentScene->Enter();
 		}
 
 		ScreenFlip();//表示
 
-		FrameRate::FrameRateUpdate();//フレームレート更新
-		InputManager::getInstance()->FrameEnd();//入力更新
+		FrameRateManager::getInstance()->FrameRateUpdate();//フレームレート更新
 
 		//ゲーム終了(デバッグ)
 		if (CheckHitKey(KEY_INPUT_ESCAPE) == 1) break;
 	}
 
 	if (currentScene) {
-		currentScene->Exit(scoreManager);
+		currentScene->Exit();
 		delete currentScene;
 		currentScene = nullptr;
 	}
 
 	InputManager::destroy();
+	ScoreManager::destroy();
 
 	DxLib_End();				// ＤＸライブラリ使用の終了処理
 
