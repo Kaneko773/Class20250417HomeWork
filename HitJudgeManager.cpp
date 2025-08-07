@@ -30,7 +30,8 @@ void HitJudgeManager::destroy()
 	}
 }
 
-void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle)
+
+void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle) const
 {
 	if (player->isCollisionResponse) return;//プレイヤーが衝突応答していたら、このフレームではもう判定しない
 
@@ -42,9 +43,7 @@ void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle)
 		{
 			player->FixedMove({ player->center.x, paddle->fourSides.topSide - player->size.height / 2.0f });//パドルの上に立つ
 
-			player->CanJump();
-			player->vel_y = 0;
-			player->isCollisionResponse = true;
+			player->Landing();
 			paddle->isCollisionResponse = true;
 		}
 	}
@@ -59,9 +58,7 @@ void HitJudgeManager::ColliderUpdate(Player* player, Paddle* paddle)
 
 			paddle->SteppedOn();//パドルを実体化
 
-			player->CanJump();
-			player->vel_y = 0;
-			player->isCollisionResponse = true;
+			player->Landing();
 			paddle->isCollisionResponse = true;
 		}
 	}
@@ -84,7 +81,7 @@ bool HitJudgeManager::IsCross(Vector2 startPoint1, Vector2 endPoint1, Vector2 st
 	return false;
 }
 //実体化してるパドルとの判定
-bool HitJudgeManager::HitJudge_materialization(BoxCollider* player, BoxCollider* paddle)
+bool HitJudgeManager::HitJudge_materialization(BoxCollider* player, BoxCollider* paddle) const
 {
 	//プレイヤーの足元(左下)
 	if (IsCross(
@@ -106,7 +103,7 @@ bool HitJudgeManager::HitJudge_materialization(BoxCollider* player, BoxCollider*
 	return false;
 }
 //実体化してないパドルとの判定
-float HitJudgeManager::HitJudge_notMaterialization(BoxCollider* player, BoxCollider* paddle)
+float HitJudgeManager::HitJudge_notMaterialization(BoxCollider* player, BoxCollider* paddle) const
 {
 	//プレイヤーの左右足元（２点）からの移動ベクトルとパドルの上辺　（最大6回判定）
 

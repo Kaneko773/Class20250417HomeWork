@@ -1,15 +1,17 @@
 #include "MainGame.h"
+
 #include "DxLib.h"
 #include "GameInfo.h"
-#include "Player.h"
 #include "FrameRateManager.h"
-#include <time.h>//—”
-#include "HitJudgeManager.h"
-#include <cmath>//atan
 #include "InputManager.h"
-#include "Result.h"
-#include "Title.h"
+
+#include "Player.h"
+#include "HitJudgeManager.h"
 #include "ScoreManager.h"
+#include "Title.h"
+#include "Result.h"
+#include <time.h>//—”
+#include <cmath>//atan
 
 MainGame::MainGame()
 {

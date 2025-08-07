@@ -5,7 +5,6 @@
 class InputManager
 {
 public:
-
 	void Update_Key();
 
 	char key_down[KEY_CNT];		//‰Ÿ‚³‚ê‚½uŠÔ

@@ -34,6 +34,7 @@ void FrameRateManager::destroy()
 	}
 }
 
+
 void FrameRateManager::FrameRateUpdate()
 {
 	// Œ»İ‚ÌƒVƒXƒeƒ€ŠÔ‚ğæ“¾

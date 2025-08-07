@@ -32,6 +32,7 @@ void ScoreManager::destroy()
 	}
 }
 
+
 void ScoreManager::Set_prevGameScore(int score) {
 	prevGameScore = score;
 	if (prevGameScore > highScore) {

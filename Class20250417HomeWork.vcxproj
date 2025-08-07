@@ -22,26 +22,29 @@
     <ClCompile Include="BoxCollider.cpp" />
     <ClCompile Include="FrameRateManager.cpp" />
     <ClCompile Include="HitJudgeManager.cpp" />
+    <ClCompile Include="Idle.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Jump.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Result.cpp" />
     <ClCompile Include="ScoreManager.cpp" />
-    <ClCompile Include="SequenceBase.cpp" />
     <ClCompile Include="Title.cpp" />
-    <ClCompile Include="Vector2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="FrameRateManager.h" />
     <ClInclude Include="GameInfo.h" />
     <ClInclude Include="HitJudgeManager.h" />
+    <ClInclude Include="Idle.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Jump.h" />
     <ClInclude Include="MainGame.h" />
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Player_StateBase.h" />
     <ClInclude Include="Result.h" />
     <ClInclude Include="ScoreManager.h" />
     <ClInclude Include="SequenceBase.h" />

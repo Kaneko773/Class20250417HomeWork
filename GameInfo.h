@@ -27,4 +27,4 @@ const int PaddleSizeHeight = 10;
 const int Max_PaddleCreateHeight = 150;
 const int Min_PaddleCreateHeight = -80;
 //ƒpƒhƒ‹¶¬‚ÌŠÔŠu
-const float PaddleCreateCoolTime = 0.01f;
+const float PaddleCreateCoolTime = 10.0f;

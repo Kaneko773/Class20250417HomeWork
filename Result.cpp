@@ -1,7 +1,9 @@
 #include "Result.h"
+
 #include "DxLib.h"
 #include "GameInfo.h"
 #include "InputManager.h"
+
 #include "Title.h"
 #include "MainGame.h"
 #include "ScoreManager.h"
@@ -17,7 +19,7 @@ Result::~Result()
 
 void Result::Enter()
 {
-	nextScene = ResultScene::NextScene::title;
+	
 }
 
 SequenceBase* Result::Execute()

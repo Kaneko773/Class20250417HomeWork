@@ -1,7 +1,9 @@
 #include "Paddle.h"
+
 #include "DxLib.h"
 #include "GameInfo.h"
 #include "FrameRateManager.h"
+
 #include "math.h"
 
 Paddle::Paddle(Vector2 pos, Vector2 size) : BoxCollider(pos, size)

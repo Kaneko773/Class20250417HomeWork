@@ -40,6 +40,7 @@ void InputManager::destroy()
 	}
 }
 
+
 void InputManager::Update_Key()
 {
 	for (int i = 0; i < KEY_CNT; ++i)

@@ -2,10 +2,9 @@
 #include "GameInfo.h"
 #include "InputManager.h"
 #include "FrameRateManager.h"
+
 #include <time.h>//óêêî
 #include "Title.h"
-#include "MainGame.h"
-#include "Result.h"
 #include "ScoreManager.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

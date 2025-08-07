@@ -1,7 +1,9 @@
+#include "Title.h"
+
 #include "DxLib.h"
 #include "GameInfo.h"
 #include "InputManager.h"
-#include "Title.h"
+
 #include "MainGame.h"
 #include "ScoreManager.h"
 
