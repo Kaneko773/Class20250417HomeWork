@@ -169,6 +169,7 @@ SequenceBase* MainGame::Execute()
 		//ゲームオーバー
 		if (player->fourSides.bottomSide > ScreenHeight - DeadZoneHeight) {
 			next = new Result();
+			ScoreManager::getInstance()->Set_prevGameScore((int)timer);//メニューからタイトルに戻るときは記録を取らないようにここで呼ぶ
 		}
 
 		timer += FrameRateManager::getInstance()->Get_Deltatime();
@@ -187,8 +188,6 @@ void MainGame::Exit()
 	}
 
 	paddles.clear();
-
-	ScoreManager::getInstance()->Set_prevGameScore((int)timer);
 
 	FrameRateManager::destroy();
 }
